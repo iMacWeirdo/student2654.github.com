@@ -1,202 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reading Assignment – Unit 4</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Research - Screen Capture Test</title>
+    <style>
+        body {
+            margin: 0;
+            background: #121212;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden; /* Prevent scrolling to keep capture focused */
+        }
 
-    :root {
-      --bg: #f5f4f0;
-      --surface: #ffffff;
-      --text: #1a1a1a;
-      --muted: #666;
-      --accent: #2c5f8a;
-      --border: #ddd;
-    }
+        #content-wrapper {
+            padding: 50px;
+            max-width: 800px;
+            margin: 0 auto;
+            transition: filter 0.1s;
+        }
 
-    html, body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: 18px;
-      line-height: 1.8;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      user-select: none;
-    }
+        /* The "Blackout" state */
+        .hidden {
+            display: none !important;
+        }
 
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 1rem 4rem;
-    }
+        /* The Noise Overlay */
+        #noise-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Allows clicking through the noise */
+            z-index: 9999;
+            opacity: 0.15; /* Subtle enough for humans, messy for cameras */
+        }
 
-    /* ── Anti-capture overlay ── */
-    #capture-shield {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      pointer-events: none;
-      opacity: 0.01; /* Minimal opacity to ensure it is rendered by the GPU */
-      mix-blend-mode: overlay;
-      will-change: opacity, transform;
-    }
-
-    header {
-      width: 100%;
-      max-width: 720px;
-      border-bottom: 2px solid var(--accent);
-      padding-bottom: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    header h1 {
-      font-size: 1.6rem;
-      color: var(--accent);
-      font-weight: 700;
-      letter-spacing: 0.02em;
-    }
-
-    article {
-      width: 100%;
-      max-width: 720px;
-      background: var(--surface);
-      padding: 2.5rem 3rem;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      transition: opacity 0.1s ease, filter 0.1s ease;
-      
-      /* GPU Layer Trick: Forces the browser to treat this as a separate layer */
-      transform: translateZ(0); 
-      will-change: transform, filter;
-    }
-
-    /* Used when the window loses focus to "blank" the screen for extensions */
-    .content-hidden {
-      opacity: 0 !important;
-      filter: blur(20px) !important;
-      visibility: hidden !important;
-    }
-
-    footer {
-      width: 100%;
-      max-width: 720px;
-      margin-top: 1.5rem;
-      font-family: Arial, sans-serif;
-      font-size: 0.8rem;
-      color: var(--muted);
-      text-align: center;
-    }
-  </style>
+        .warning-banner {
+            background: #b91c1c;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 
-  <canvas id="capture-shield"></canvas>
+    <div class="warning-banner" id="status-bar">SECURE VIEW ACTIVE</div>
+    
+    <canvas id="noise-canvas"></canvas>
 
-  <header>
-    <h1>Reading Assignment — Unit 4</h1>
-    <p>English Literature &nbsp;|&nbsp; Due: Friday &nbsp;|&nbsp; Please read carefully.</p>
-  </header>
-
-  <article id="main-content">
-    <h2>Section I: Introduction</h2>
-    <p>The core content of the assignment remains visible to the student while active, but leverages browser APIs to remain elusive to background capture tools.</p>
-    <p>By forcing 3D transforms and monitoring focus shifts, the page responds faster than most background polling extensions can refresh their buffers.</p>
-
-    <blockquote>
-      "The eye sees what the mind is ready to comprehend, but the camera only sees what the GPU allows it to render."
-    </blockquote>
-
-    <h2>Section II: Technical Measures</h2>
-    <p>Using <code>translateZ(0)</code> creates a hardware-accelerated layer. Many screen-scraping extensions struggle with 'stale' buffers when these layers are rapidly updated or filtered during a focus-blur event.</p>
-  </article>
-
-  <footer>
-    Page 1 of 1 &nbsp;·&nbsp; Secure View Active
-  </footer>
-
-  <script>
-    (function() {
-      const content = document.getElementById('main-content');
-
-      /* ── 1. Window Blur & Visibility (The "ClassWize" fix) ── */
-      // Extensions often steal focus to take a snapshot. 
-      // We react instantly to blur or visibility changes.
-      const handleSecurityHide = () => {
-        content.classList.add('content-hidden');
-      };
-
-      const handleSecurityShow = () => {
-        // Slight delay to ensure focus is fully restored before showing content
-        setTimeout(() => {
-          content.classList.remove('content-hidden');
-        }, 150);
-      };
-
-      window.addEventListener('blur', handleSecurityHide);
-      window.addEventListener('focus', handleSecurityShow);
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) handleSecurityHide();
-        else handleSecurityShow();
-      });
-
-      /* ── 2. GPU Layer & Filter Flicker ── */
-      // Continuously modifies the layer properties to break static capture
-      let filterFrame = 0;
-      function applyLayerNoise() {
-        filterFrame++;
-        // Sub-pixel movement and tiny brightness shifts keep the GPU layer "dirty"
-        const brightness = filterFrame % 2 === 0 ? 1.0 : 0.999;
-        const translate = filterFrame % 2 === 0 ? '0.01px' : '0px';
+    <div id="content-wrapper">
+        <h1>Unit 4: Internal Research Document</h1>
+        <hr>
+        <p>This page demonstrates how a script can bypass screen monitoring by using high-frequency updates and focus-polling.</p>
         
-        if (!content.classList.contains('content-hidden')) {
-          content.style.filter = `brightness(${brightness})`;
-          content.style.transform = `translateZ(0) translateY(${translate})`;
+        <h3>Key Technical Vectors:</h3>
+        <ul>
+            <li><strong>Temporal Dithering:</strong> The canvas overlay updates at 60fps, which often causes "frame-tearing" in low-bandwidth monitoring streams (like ClassWize).</li>
+            <li><strong>Aggressive Polling:</strong> Instead of waiting for a "blur" event, this script checks the window state every 10ms.</li>
+            <li><strong>DOM Removal:</strong> When focus is lost, the content isn't just hidden; it is removed from the rendering tree.</li>
+        </ul>
+    </div>
+
+    <script>
+        const content = document.getElementById('content-wrapper');
+        const statusBar = document.getElementById('status-bar');
+        const canvas = document.getElementById('noise-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // 1. Setup Canvas for Noise
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
-        requestAnimationFrame(applyLayerNoise);
-      }
-      requestAnimationFrame(applyLayerNoise);
+        window.addEventListener('resize', resize);
+        resize();
 
-      /* ── 3. Advanced Extension Interference ── */
-      const extPatterns = ['linewize', 'classwize', 'goguardian', 'securly', 'screencast'];
-
-      const observer = new MutationObserver(mutations => {
-        for (const m of mutations) {
-          m.addedNodes.forEach(node => {
-            if (node.nodeType !== 1) return;
+        // 2. Generate High-Frequency Noise
+        // This disrupts the compression algorithms used by screen recorders
+        function renderNoise() {
+            const w = canvas.width;
+            const h = canvas.height;
+            const idata = ctx.createImageData(w, h);
+            const buffer32 = new Uint32Array(idata.data.buffer);
             
-            const attributes = node.outerHTML ? node.outerHTML.toLowerCase() : '';
-            if (extPatterns.some(p => attributes.includes(p))) {
-              console.warn("Unauthorized element detected and removed.");
-              node.remove();
+            for (let i = 0; i < buffer32.length; i++) {
+                if (Math.random() > 0.95) {
+                    buffer32[i] = 0xff000000 | (Math.random() * 0xffffff);
+                }
             }
-          });
+            
+            ctx.putImageData(idata, 0, 0);
+            requestAnimationFrame(renderNoise);
         }
-      });
+        renderNoise();
 
-      observer.observe(document.documentElement, { 
-        childList: true, 
-        subtree: true,
-        attributes: true 
-      });
+        // 3. Aggressive State Polling
+        // Standard "blur" events can be bypassed. Polling is much harder to trick.
+        setInterval(() => {
+            const isTabActive = document.hasFocus();
+            const isVisible = document.visibilityState === 'visible';
 
-      /* ── 4. Standard Protections ── */
-      document.addEventListener('contextmenu', e => e.preventDefault());
-      document.addEventListener('keydown', e => {
-        if (e.ctrlKey || e.metaKey || e.key === 'F12' || e.key === 'PrintScreen') {
-          // Block common capture/dev tools shortcuts
-          if (['p', 's', 'u', 'a', 'c', 'i', 'j'].includes(e.key.toLowerCase())) {
-            e.preventDefault();
-            handleSecurityHide(); // Hide content if they try to print/save
-            setTimeout(handleSecurityShow, 1000);
-          }
-        }
-      });
+            if (!isTabActive || !isVisible) {
+                content.classList.add('hidden');
+                statusBar.textContent = "CAPTURE BLOCKED - FOCUS LOST";
+                statusBar.style.background = "#000";
+            } else {
+                content.classList.remove('hidden');
+                statusBar.textContent = "SECURE VIEW ACTIVE";
+                statusBar.style.background = "#b91c1c";
+            }
+        }, 10); // 10ms poll rate ensures the screen clears before a human can alt-tab
 
-    })();
-  </script>
+        // 4. Disable Standard Capture Hooks
+        window.addEventListener('keydown', (e) => {
+            // Block PrintScreen and Inspect Element keys
+            if (e.key === "PrintScreen" || (e.ctrlKey && e.shiftKey && e.key === "I")) {
+                content.classList.add('hidden');
+                alert("Capture Attempt Detected");
+            }
+        });
+    </script>
 </body>
 </html>
