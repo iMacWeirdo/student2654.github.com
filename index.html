@@ -3,75 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Security Research - Screen Capture Test</title>
-    <style>
-        body {
-            margin: 0;
-            background: #121212;
-            color: #e0e0e0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden; /* Prevent scrolling to keep capture focused */
+    <title>Classroom - General Mathematics</title> <style>
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background: #000; color: #00ff00;
+            font-family: monospace; overflow: hidden;
+            user-select: none; -webkit-user-select: none;
         }
-
-        #content-wrapper {
-            padding: 50px;
-            max-width: 800px;
-            margin: 0 auto;
-            transition: filter 0.1s;
+        #ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%;
+            z-index: 10; pointer-events: none; padding: 20px;
         }
-
-        /* The "Blackout" state */
-        .hidden {
-            display: none !important;
+        canvas {
+            position: fixed; top: 0; left: 0;
+            image-rendering: pixelated;
         }
-
-        /* The Noise Overlay */
-        #noise-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none; /* Allows clicking through the noise */
-            z-index: 9999;
-            opacity: 0.15; /* Subtle enough for humans, messy for cameras */
-        }
-
-        .warning-banner {
-            background: #b91c1c;
-            color: white;
-            padding: 10px;
-            text-align: center;
-            font-weight: bold;
+        #blocker {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; z-index: 10000; display: flex;
+            justify-content: center; align-items: center; color: white;
+            font-size: 1.2rem; display: none;
         }
     </style>
 </head>
 <body>
 
-    <div class="warning-banner" id="status-bar">SECURE VIEW ACTIVE</div>
-    
-    <canvas id="noise-canvas"></canvas>
+    <div id="blocker"><h1>ENVIRONMENT RESTRICTED</h1></div>
 
-    <div id="content-wrapper">
-        <h1>Unit 4: Internal Research Document</h1>
-        <hr>
-        <p>This page demonstrates how a script can bypass screen monitoring by using high-frequency updates and focus-polling.</p>
-        
-        <h3>Key Technical Vectors:</h3>
-        <ul>
-            <li><strong>Temporal Dithering:</strong> The canvas overlay updates at 60fps, which often causes "frame-tearing" in low-bandwidth monitoring streams (like ClassWize).</li>
-            <li><strong>Aggressive Polling:</strong> Instead of waiting for a "blur" event, this script checks the window state every 10ms.</li>
-            <li><strong>DOM Removal:</strong> When focus is lost, the content isn't just hidden; it is removed from the rendering tree.</li>
-        </ul>
+    <div id="ui-layer">
+        <div style="background: rgba(255,0,0,0.2); padding: 10px; border: 1px solid red;">
+            STATUS: SECURE_VIEW // OSCILLATION_ACTIVE
+        </div>
     </div>
 
-    <script>
-        const content = document.getElementById('content-wrapper');
-        const statusBar = document.getElementById('status-bar');
-        const canvas = document.getElementById('noise-canvas');
-        const ctx = canvas.getContext('2d');
+    <canvas id="secureCanvas"></canvas>
 
-        // 1. Setup Canvas for Noise
+    <script>
+        const canvas = document.getElementById('secureCanvas');
+        const ctx = canvas.getContext('2d');
+        const blocker = document.getElementById('blocker');
+        let originalTitle = "Research Document Alpha";
+        let cloakTitle = "Classroom - General Mathematics";
+
+        // Configuration
+        const textToDisplay = [
+            "PROJECT LOREM IPSUM - CLASSIFIED",
+            "--------------------------------",
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            "Sed do eiusmod tempor incididunt ut labore et dolore.",
+            "This text is rendered via GPU buffer to bypass standard",
+            "DOM-based screen scrapers and content filters.",
+            "",
+            "VECTOR 1: High-Frequency Temporal Noise",
+            "VECTOR 2: Sub-pixel Text Jittering",
+            "VECTOR 3: Visibility Polling (10ms)"
+        ];
+
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -79,50 +66,65 @@
         window.addEventListener('resize', resize);
         resize();
 
-        // 2. Generate High-Frequency Noise
-        // This disrupts the compression algorithms used by screen recorders
-        function renderNoise() {
-            const w = canvas.width;
-            const h = canvas.height;
-            const idata = ctx.createImageData(w, h);
-            const buffer32 = new Uint32Array(idata.data.buffer);
-            
-            for (let i = 0; i < buffer32.length; i++) {
-                if (Math.random() > 0.95) {
-                    buffer32[i] = 0xff000000 | (Math.random() * 0xffffff);
+        function render() {
+            // 1. Clear with slight alpha to create motion blur on recorders
+            ctx.fillStyle = "rgba(10, 10, 10, 0.8)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 2. Generate disruption noise
+            const idata = ctx.createImageData(canvas.width, canvas.height);
+            const data = new Uint32Array(idata.data.buffer);
+            for (let i = 0; i < data.length; i++) {
+                if (Math.random() > 0.98) {
+                    data[i] = 0xff00ff00; // Bright green interference pixels
                 }
             }
-            
             ctx.putImageData(idata, 0, 0);
-            requestAnimationFrame(renderNoise);
+
+            // 3. Render Jittery Text (Breaks many OCR systems)
+            ctx.font = "18px monospace";
+            ctx.fillStyle = "#00ff00";
+            
+            const jitterX = Math.random() * 1.5;
+            const jitterY = Math.random() * 1.5;
+
+            textToDisplay.forEach((line, index) => {
+                ctx.fillText(line, 50 + jitterX, 100 + (index * 30) + jitterY);
+            });
+
+            requestAnimationFrame(render);
         }
-        renderNoise();
 
-        // 3. Aggressive State Polling
-        // Standard "blur" events can be bypassed. Polling is much harder to trick.
+        // Aggressive State Polling
         setInterval(() => {
-            const isTabActive = document.hasFocus();
-            const isVisible = document.visibilityState === 'visible';
-
-            if (!isTabActive || !isVisible) {
-                content.classList.add('hidden');
-                statusBar.textContent = "CAPTURE BLOCKED - FOCUS LOST";
-                statusBar.style.background = "#000";
+            const isActive = document.hasFocus() && document.visibilityState === 'visible';
+            
+            if (!isActive) {
+                // Kill the view immediately
+                canvas.style.display = 'none';
+                blocker.style.display = 'flex';
+                document.title = cloakTitle;
             } else {
-                content.classList.remove('hidden');
-                statusBar.textContent = "SECURE VIEW ACTIVE";
-                statusBar.style.background = "#b91c1c";
+                canvas.style.display = 'block';
+                blocker.style.display = 'none';
+                document.title = originalTitle;
             }
-        }, 10); // 10ms poll rate ensures the screen clears before a human can alt-tab
+        }, 10);
 
-        // 4. Disable Standard Capture Hooks
+        // Block Key Commands (PrintScreen, Inspect)
         window.addEventListener('keydown', (e) => {
-            // Block PrintScreen and Inspect Element keys
-            if (e.key === "PrintScreen" || (e.ctrlKey && e.shiftKey && e.key === "I")) {
-                content.classList.add('hidden');
-                alert("Capture Attempt Detected");
+            if (e.key === "PrintScreen" || (e.ctrlKey && e.shiftKey && e.key === "I") || (e.metaKey && e.altKey && e.key === "i")) {
+                e.preventDefault();
+                canvas.remove(); // Self-destruct content
+                alert("Security Violation");
             }
         });
+
+        // Prevent Right Click
+        document.addEventListener('contextmenu', e => e.preventDefault());
+
+        // Start Rendering
+        render();
     </script>
 </body>
 </html>
