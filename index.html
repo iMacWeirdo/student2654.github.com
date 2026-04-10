@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reading Assignment – Unit 4</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f4f0;
+      --surface: #ffffff;
+      --text: #1a1a1a;
+      --muted: #666;
+      --accent: #2c5f8a;
+      --border: #ddd;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 18px;
+      line-height: 1.8;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      user-select: none;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 4rem;
+    }
+
+    /* ── Anti-capture overlay ── */
+    #capture-shield {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0;
+      mix-blend-mode: overlay;
+      will-change: opacity, transform;
+    }
+
+    header {
+      width: 100%;
+      max-width: 720px;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    header p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-family: Arial, sans-serif;
+      margin-top: 0.25rem;
+    }
+
+    article {
+      width: 100%;
+      max-width: 720px;
+      background: var(--surface);
+      padding: 2.5rem 3rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    article h2 {
+      font-size: 1.25rem;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+      margin-top: 2rem;
+      font-weight: 700;
+    }
+
+    article h2:first-child { margin-top: 0; }
+
+    article p { margin-bottom: 1.2rem; color: var(--text); }
+
+    article p:last-child { margin-bottom: 0; }
+
+    blockquote {
+      border-left: 3px solid var(--accent);
+      margin: 1.5rem 0;
+      padding: 0.75rem 1.25rem;
+      color: var(--muted);
+      font-style: italic;
+      background: #f0f4f8;
+    }
+
+    footer {
+      width: 100%;
+      max-width: 720px;
+      margin-top: 1.5rem;
+      font-family: Arial, sans-serif;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Anti-capture canvas overlay -->
+  <canvas id="capture-shield"></canvas>
+
+  <header>
+    <h1>Reading Assignment — Unit 4</h1>
+    <p>English Literature &nbsp;|&nbsp; Due: Friday &nbsp;|&nbsp; Please read carefully and take notes.</p>
+  </header>
+
+  <article id="main-content">
+    <h2>Section I: Introduction</h2>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+    <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis molestie dictum semper, enim erat ornare tellus, at laoreet risus erat a dui.</p>
+
+    <blockquote>
+      "Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante."
+    </blockquote>
+
+    <h2>Section II: Development</h2>
+    <p>Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci.</p>
+    <p>Sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus.</p>
+    <p>Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus. Nam nulla quam, gravida non, commodo a, sodales sit amet, nisi. Nullam in massa. Suspendisse vitae nisl sit amet augue bibendum aliquam.</p>
+
+    <h2>Section III: Analysis</h2>
+    <p>Mauris tincidunt sem sed arcu. Nunc posuere. Nullam lectus justo, vulputate eget mollis sed, tempor sed magna. Curabitur scelerisque ipsum gravida ipsum mattis, quis interdum enim vestibulum. Morbi malesuada nulla nec purus convallis consequat.</p>
+    <p>Vivamus vel nulla eget eros elementum pellentesque. Quisque porta volutpat erat. Quisque erat eros, viverra eget, congue eget, semper rutrum, nulla. Sed diam. Praesent ut ligula non mi varius sagittis. Cras sagittis. Praesent ac sem eget est egestas volutpat.</p>
+    <p>Vivamus consectetuer hendrerit lacus. Cras non dolor. Vivamus in erat ut urna cursus vestibulum. Fusce commodo aliquam arcu. Nam commodo suscipit quam. Quisque id odio. Praesent venenatis metus at tortor pulvinar varius. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+
+    <blockquote>
+      "Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae."
+    </blockquote>
+
+    <h2>Section IV: Conclusion</h2>
+    <p>Fusce fermentum. Nullam varius nulla. Morbi nunc est, dignissim non, ornare sed, luctus ut, nunc. Nullam lobortis arcu at justo rhoncus congue. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
+    <p>Aliquam erat volutpat. Sed laoreet aliquam leo. Vivamus quam. Fusce lobortis lorem at ipsum semper sagittis. Vivamus ut mi. Aenean nulla. Nulla facilisi. Morbi interdum mollis sapien. Sed ac risus. Phasellus lacinia, magna a ullamcorper laoreet, lectus arcu pulvinar risus.</p>
+  </article>
+
+  <footer>
+    Page 1 of 1 &nbsp;·&nbsp; Unit 4 Reading &nbsp;·&nbsp; Do not distribute
+  </footer>
+
+  <script>
+    (function() {
+
+      /* ── 1. Block right-click and keyboard shortcuts ── */
+      document.addEventListener('contextmenu', e => e.preventDefault());
+      document.addEventListener('keydown', e => {
+        const blocked = (
+          (e.ctrlKey && ['p','s','u','a'].includes(e.key.toLowerCase())) ||
+          (e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase())) ||
+          e.key === 'F12' || e.key === 'PrintScreen'
+        );
+        if (blocked) e.preventDefault();
+      });
+
+      /* ── 2. Block print / print-to-PDF ── */
+      window.addEventListener('beforeprint', () => {
+        document.getElementById('main-content').style.visibility = 'hidden';
+      });
+      window.addEventListener('afterprint', () => {
+        document.getElementById('main-content').style.visibility = 'visible';
+      });
+
+      /* ── 3. Canvas overlay that flickers at capture-frame boundaries ──
+         Many extension-based capturers grab composited frames. A canvas
+         that repaints with subtle noise on each animation frame breaks
+         clean captures on extensions that read pixel data.               */
+      const shield = document.getElementById('capture-shield');
+      const ctx = shield.getContext('2d');
+
+      function resizeShield() {
+        shield.width = window.innerWidth;
+        shield.height = window.innerHeight;
+      }
+      resizeShield();
+      window.addEventListener('resize', resizeShield);
+
+      let frame = 0;
+      function paintShield() {
+        frame++;
+        const w = shield.width, h = shield.height;
+        ctx.clearRect(0, 0, w, h);
+
+        /* Imperceptible to human eye — alternates each frame.
+           Capture tools reading pixel data see alternating frames. */
+        const alpha = (frame % 2 === 0) ? 0.004 : 0.006;
+        ctx.fillStyle = `rgba(${frame % 3 === 0 ? 255 : 0},${frame % 5 === 0 ? 255 : 0},${frame % 7 === 0 ? 255 : 0},${alpha})`;
+        ctx.fillRect(0, 0, w, h);
+
+        requestAnimationFrame(paintShield);
+      }
+      requestAnimationFrame(paintShield);
+
+      /* ── 4. CSS filter flicker on content (imperceptible, ~0.3% shift) ──
+         Forces repaint on a GPU layer. Some extension hooks that intercept
+         compositing can't cleanly capture layers with will-change active.  */
+      const content = document.getElementById('main-content');
+      content.style.willChange = 'filter';
+      let filterFrame = 0;
+      function flickerFilter() {
+        filterFrame++;
+        content.style.filter = filterFrame % 2 === 0
+          ? 'brightness(1.000)'
+          : 'brightness(0.9997)';
+        requestAnimationFrame(flickerFilter);
+      }
+      requestAnimationFrame(flickerFilter);
+
+      /* ── 5. Detect & disable extension-injected DOM elements ──
+         Extensions like Screencastify inject overlays/iframes. Remove them. */
+      const extPatterns = [
+        'screencastify', 'screencast', 'loom-', 'vidyard',
+        'linewize', 'lightspeed', 'bark-', 'goguardian',
+        'securly', 'contentkeeper', 'iboss', 'smoothwall'
+      ];
+
+      function removeExtNodes(node) {
+        if (!node || node.nodeType !== 1) return;
+        const id = (node.id || '').toLowerCase();
+        const cls = (node.className || '').toLowerCase();
+        const tag = (node.tagName || '').toLowerCase();
+        const src = (node.src || node.href || '').toLowerCase();
+        const combined = id + ' ' + cls + ' ' + src;
+        if (extPatterns.some(p => combined.includes(p))) {
+          try { node.remove(); } catch(e) {}
+          return;
+        }
+        /* Also block suspicious injected iframes/scripts */
+        if ((tag === 'iframe' || tag === 'script') && src &&
+            !src.startsWith(location.origin) &&
+            !src.startsWith('about:') &&
+            !src.startsWith('chrome-extension:')) {
+          try { node.remove(); } catch(e) {}
+        }
+      }
+
+      const observer = new MutationObserver(mutations => {
+        for (const m of mutations) {
+          m.addedNodes.forEach(removeExtNodes);
+        }
+      });
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+
+      /* ── 6. Detect tab visibility change (screen share often triggers this) ──
+         When the page loses focus (share dialog opens), briefly hide content. */
+      let hideTimeout;
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          content.style.opacity = '0';
+          clearTimeout(hideTimeout);
+        } else {
+          hideTimeout = setTimeout(() => { content.style.opacity = '1'; }, 300);
+        }
+      });
+
+      /* ── 7. Detect window blur (capture tools grab on blur) ── */
+      window.addEventListener('blur', () => {
+        content.style.filter = 'blur(12px)';
+      });
+      window.addEventListener('focus', () => {
+        content.style.filter = '';
+      });
+
+    })();
+  </script>
+</body>
+</html>
