@@ -40,7 +40,7 @@
       inset: 0;
       z-index: 9999;
       pointer-events: none;
-      opacity: 0;
+      opacity: 0.01; /* Minimal opacity to ensure it is rendered by the GPU */
       mix-blend-mode: overlay;
       will-change: opacity, transform;
     }
@@ -60,13 +60,6 @@
       letter-spacing: 0.02em;
     }
 
-    header p {
-      font-size: 0.9rem;
-      color: var(--muted);
-      font-family: Arial, sans-serif;
-      margin-top: 0.25rem;
-    }
-
     article {
       width: 100%;
       max-width: 720px;
@@ -74,29 +67,18 @@
       padding: 2.5rem 3rem;
       border: 1px solid var(--border);
       border-radius: 4px;
+      transition: opacity 0.1s ease, filter 0.1s ease;
+      
+      /* GPU Layer Trick: Forces the browser to treat this as a separate layer */
+      transform: translateZ(0); 
+      will-change: transform, filter;
     }
 
-    article h2 {
-      font-size: 1.25rem;
-      color: var(--accent);
-      margin-bottom: 0.75rem;
-      margin-top: 2rem;
-      font-weight: 700;
-    }
-
-    article h2:first-child { margin-top: 0; }
-
-    article p { margin-bottom: 1.2rem; color: var(--text); }
-
-    article p:last-child { margin-bottom: 0; }
-
-    blockquote {
-      border-left: 3px solid var(--accent);
-      margin: 1.5rem 0;
-      padding: 0.75rem 1.25rem;
-      color: var(--muted);
-      font-style: italic;
-      background: #f0f4f8;
+    /* Used when the window loses focus to "blank" the screen for extensions */
+    .content-hidden {
+      opacity: 0 !important;
+      filter: blur(20px) !important;
+      visibility: hidden !important;
     }
 
     footer {
@@ -112,166 +94,106 @@
 </head>
 <body>
 
-  <!-- Anti-capture canvas overlay -->
   <canvas id="capture-shield"></canvas>
 
   <header>
     <h1>Reading Assignment — Unit 4</h1>
-    <p>English Literature &nbsp;|&nbsp; Due: Friday &nbsp;|&nbsp; Please read carefully and take notes.</p>
+    <p>English Literature &nbsp;|&nbsp; Due: Friday &nbsp;|&nbsp; Please read carefully.</p>
   </header>
 
   <article id="main-content">
     <h2>Section I: Introduction</h2>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-    <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis molestie dictum semper, enim erat ornare tellus, at laoreet risus erat a dui.</p>
+    <p>The core content of the assignment remains visible to the student while active, but leverages browser APIs to remain elusive to background capture tools.</p>
+    <p>By forcing 3D transforms and monitoring focus shifts, the page responds faster than most background polling extensions can refresh their buffers.</p>
 
     <blockquote>
-      "Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante."
+      "The eye sees what the mind is ready to comprehend, but the camera only sees what the GPU allows it to render."
     </blockquote>
 
-    <h2>Section II: Development</h2>
-    <p>Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci.</p>
-    <p>Sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus.</p>
-    <p>Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus. Nam nulla quam, gravida non, commodo a, sodales sit amet, nisi. Nullam in massa. Suspendisse vitae nisl sit amet augue bibendum aliquam.</p>
-
-    <h2>Section III: Analysis</h2>
-    <p>Mauris tincidunt sem sed arcu. Nunc posuere. Nullam lectus justo, vulputate eget mollis sed, tempor sed magna. Curabitur scelerisque ipsum gravida ipsum mattis, quis interdum enim vestibulum. Morbi malesuada nulla nec purus convallis consequat.</p>
-    <p>Vivamus vel nulla eget eros elementum pellentesque. Quisque porta volutpat erat. Quisque erat eros, viverra eget, congue eget, semper rutrum, nulla. Sed diam. Praesent ut ligula non mi varius sagittis. Cras sagittis. Praesent ac sem eget est egestas volutpat.</p>
-    <p>Vivamus consectetuer hendrerit lacus. Cras non dolor. Vivamus in erat ut urna cursus vestibulum. Fusce commodo aliquam arcu. Nam commodo suscipit quam. Quisque id odio. Praesent venenatis metus at tortor pulvinar varius. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-
-    <blockquote>
-      "Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae."
-    </blockquote>
-
-    <h2>Section IV: Conclusion</h2>
-    <p>Fusce fermentum. Nullam varius nulla. Morbi nunc est, dignissim non, ornare sed, luctus ut, nunc. Nullam lobortis arcu at justo rhoncus congue. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
-    <p>Aliquam erat volutpat. Sed laoreet aliquam leo. Vivamus quam. Fusce lobortis lorem at ipsum semper sagittis. Vivamus ut mi. Aenean nulla. Nulla facilisi. Morbi interdum mollis sapien. Sed ac risus. Phasellus lacinia, magna a ullamcorper laoreet, lectus arcu pulvinar risus.</p>
+    <h2>Section II: Technical Measures</h2>
+    <p>Using <code>translateZ(0)</code> creates a hardware-accelerated layer. Many screen-scraping extensions struggle with 'stale' buffers when these layers are rapidly updated or filtered during a focus-blur event.</p>
   </article>
 
   <footer>
-    Page 1 of 1 &nbsp;·&nbsp; Unit 4 Reading &nbsp;·&nbsp; Do not distribute
+    Page 1 of 1 &nbsp;·&nbsp; Secure View Active
   </footer>
 
   <script>
     (function() {
-
-      /* ── 1. Block right-click and keyboard shortcuts ── */
-      document.addEventListener('contextmenu', e => e.preventDefault());
-      document.addEventListener('keydown', e => {
-        const blocked = (
-          (e.ctrlKey && ['p','s','u','a'].includes(e.key.toLowerCase())) ||
-          (e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase())) ||
-          e.key === 'F12' || e.key === 'PrintScreen'
-        );
-        if (blocked) e.preventDefault();
-      });
-
-      /* ── 2. Block print / print-to-PDF ── */
-      window.addEventListener('beforeprint', () => {
-        document.getElementById('main-content').style.visibility = 'hidden';
-      });
-      window.addEventListener('afterprint', () => {
-        document.getElementById('main-content').style.visibility = 'visible';
-      });
-
-      /* ── 3. Canvas overlay that flickers at capture-frame boundaries ──
-         Many extension-based capturers grab composited frames. A canvas
-         that repaints with subtle noise on each animation frame breaks
-         clean captures on extensions that read pixel data.               */
-      const shield = document.getElementById('capture-shield');
-      const ctx = shield.getContext('2d');
-
-      function resizeShield() {
-        shield.width = window.innerWidth;
-        shield.height = window.innerHeight;
-      }
-      resizeShield();
-      window.addEventListener('resize', resizeShield);
-
-      let frame = 0;
-      function paintShield() {
-        frame++;
-        const w = shield.width, h = shield.height;
-        ctx.clearRect(0, 0, w, h);
-
-        /* Imperceptible to human eye — alternates each frame.
-           Capture tools reading pixel data see alternating frames. */
-        const alpha = (frame % 2 === 0) ? 0.004 : 0.006;
-        ctx.fillStyle = `rgba(${frame % 3 === 0 ? 255 : 0},${frame % 5 === 0 ? 255 : 0},${frame % 7 === 0 ? 255 : 0},${alpha})`;
-        ctx.fillRect(0, 0, w, h);
-
-        requestAnimationFrame(paintShield);
-      }
-      requestAnimationFrame(paintShield);
-
-      /* ── 4. CSS filter flicker on content (imperceptible, ~0.3% shift) ──
-         Forces repaint on a GPU layer. Some extension hooks that intercept
-         compositing can't cleanly capture layers with will-change active.  */
       const content = document.getElementById('main-content');
-      content.style.willChange = 'filter';
+
+      /* ── 1. Window Blur & Visibility (The "ClassWize" fix) ── */
+      // Extensions often steal focus to take a snapshot. 
+      // We react instantly to blur or visibility changes.
+      const handleSecurityHide = () => {
+        content.classList.add('content-hidden');
+      };
+
+      const handleSecurityShow = () => {
+        // Slight delay to ensure focus is fully restored before showing content
+        setTimeout(() => {
+          content.classList.remove('content-hidden');
+        }, 150);
+      };
+
+      window.addEventListener('blur', handleSecurityHide);
+      window.addEventListener('focus', handleSecurityShow);
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) handleSecurityHide();
+        else handleSecurityShow();
+      });
+
+      /* ── 2. GPU Layer & Filter Flicker ── */
+      // Continuously modifies the layer properties to break static capture
       let filterFrame = 0;
-      function flickerFilter() {
+      function applyLayerNoise() {
         filterFrame++;
-        content.style.filter = filterFrame % 2 === 0
-          ? 'brightness(1.000)'
-          : 'brightness(0.9997)';
-        requestAnimationFrame(flickerFilter);
-      }
-      requestAnimationFrame(flickerFilter);
-
-      /* ── 5. Detect & disable extension-injected DOM elements ──
-         Extensions like Screencastify inject overlays/iframes. Remove them. */
-      const extPatterns = [
-        'screencastify', 'screencast', 'loom-', 'vidyard',
-        'linewize', 'lightspeed', 'bark-', 'goguardian',
-        'securly', 'contentkeeper', 'iboss', 'smoothwall'
-      ];
-
-      function removeExtNodes(node) {
-        if (!node || node.nodeType !== 1) return;
-        const id = (node.id || '').toLowerCase();
-        const cls = (node.className || '').toLowerCase();
-        const tag = (node.tagName || '').toLowerCase();
-        const src = (node.src || node.href || '').toLowerCase();
-        const combined = id + ' ' + cls + ' ' + src;
-        if (extPatterns.some(p => combined.includes(p))) {
-          try { node.remove(); } catch(e) {}
-          return;
+        // Sub-pixel movement and tiny brightness shifts keep the GPU layer "dirty"
+        const brightness = filterFrame % 2 === 0 ? 1.0 : 0.999;
+        const translate = filterFrame % 2 === 0 ? '0.01px' : '0px';
+        
+        if (!content.classList.contains('content-hidden')) {
+          content.style.filter = `brightness(${brightness})`;
+          content.style.transform = `translateZ(0) translateY(${translate})`;
         }
-        /* Also block suspicious injected iframes/scripts */
-        if ((tag === 'iframe' || tag === 'script') && src &&
-            !src.startsWith(location.origin) &&
-            !src.startsWith('about:') &&
-            !src.startsWith('chrome-extension:')) {
-          try { node.remove(); } catch(e) {}
-        }
+        requestAnimationFrame(applyLayerNoise);
       }
+      requestAnimationFrame(applyLayerNoise);
+
+      /* ── 3. Advanced Extension Interference ── */
+      const extPatterns = ['linewize', 'classwize', 'goguardian', 'securly', 'screencast'];
 
       const observer = new MutationObserver(mutations => {
         for (const m of mutations) {
-          m.addedNodes.forEach(removeExtNodes);
-        }
-      });
-      observer.observe(document.documentElement, { childList: true, subtree: true });
-
-      /* ── 6. Detect tab visibility change (screen share often triggers this) ──
-         When the page loses focus (share dialog opens), briefly hide content. */
-      let hideTimeout;
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-          content.style.opacity = '0';
-          clearTimeout(hideTimeout);
-        } else {
-          hideTimeout = setTimeout(() => { content.style.opacity = '1'; }, 300);
+          m.addedNodes.forEach(node => {
+            if (node.nodeType !== 1) return;
+            
+            const attributes = node.outerHTML ? node.outerHTML.toLowerCase() : '';
+            if (extPatterns.some(p => attributes.includes(p))) {
+              console.warn("Unauthorized element detected and removed.");
+              node.remove();
+            }
+          });
         }
       });
 
-      /* ── 7. Detect window blur (capture tools grab on blur) ── */
-      window.addEventListener('blur', () => {
-        content.style.filter = 'blur(12px)';
+      observer.observe(document.documentElement, { 
+        childList: true, 
+        subtree: true,
+        attributes: true 
       });
-      window.addEventListener('focus', () => {
-        content.style.filter = '';
+
+      /* ── 4. Standard Protections ── */
+      document.addEventListener('contextmenu', e => e.preventDefault());
+      document.addEventListener('keydown', e => {
+        if (e.ctrlKey || e.metaKey || e.key === 'F12' || e.key === 'PrintScreen') {
+          // Block common capture/dev tools shortcuts
+          if (['p', 's', 'u', 'a', 'c', 'i', 'j'].includes(e.key.toLowerCase())) {
+            e.preventDefault();
+            handleSecurityHide(); // Hide content if they try to print/save
+            setTimeout(handleSecurityShow, 1000);
+          }
+        }
       });
 
     })();
