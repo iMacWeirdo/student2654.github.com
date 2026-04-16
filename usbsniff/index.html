@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>USB Metadata Sniffer</title>
+    <style>
+        body { font-family: monospace; background: #111; color: #0f0; padding: 20px; }
+        .log { border: 1px solid #333; padding: 10px; height: 300px; overflow-y: auto; background: #000; }
+        button { background: #0f0; color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #0c0; }
+    </style>
+</head>
+<body>
+    <h2>> USB_SNIFFER_EXTRACTOR</h2>
+    <p>Click "Scan" and select your LCD device to attempt metadata extraction.</p>
+    
+    <button id="scan">SCAN FOR DEVICES</button>
+    
+    <h3>Device Info:</h3>
+    <div id="output" class="log">Ready for input...</div>
+
+    <script>
+        const scanBtn = document.getElementById('scan');
+        const output = document.getElementById('output');
+
+        function log(msg) {
+            output.innerHTML += `<div>> ${msg}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        scanBtn.addEventListener('click', async () => {
+            log("Opening Device Picker...");
+            try {
+                // Requesting all devices (empty filter)
+                const device = await navigator.usb.requestDevice({ filters: [] });
+                
+                log("--- DEVICE FOUND ---");
+                log(`Vendor ID:  0x${device.vendorId.toString(16).padStart(4, '0')}`);
+                log(`Product ID: 0x${device.productId.toString(16).padStart(4, '0')}`);
+                
+                // These properties require a successful USB connection handshake
+                log(`Manufacturer: ${device.manufacturerName || "Unknown"}`);
+                log(`Product:      ${device.productName || "Unknown"}`);
+                log(`Serial No:    ${device.serialNumber || "None"}`);
+                log(`USB Version:  ${device.usbVersionMajor}.${device.usbVersionMinor}`);
+                
+            } catch (err) {
+                log(`<span style="color:red">ERROR: ${err.name} - ${err.message}</span>`);
+                if (err.name === "SecurityError") {
+                    log("ANALYSIS: WebUSB is likely blocked by ChromeOS Policy.");
+                }
+            }
+        });
+    </script>
+</body>
+</html>
