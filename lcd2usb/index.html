@@ -1,105 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebUSB LCD2USB Controller</title>
+    <title>LCD2USB Pro Controller</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; line-height: 1.6; background: #f4f4f9; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        button { padding: 10px 15px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; }
-        button:disabled { background: #ccc; }
-        input { padding: 10px; width: 70%; border: 1px solid #ddd; border-radius: 4px; }
-        #status { margin-top: 15px; font-weight: bold; }
-        .success { color: green; }
-        .error { color: red; }
+        body { font-family: 'Courier New', monospace; background: #222; color: #00ff00; padding: 20px; }
+        .lcd-box { border: 4px solid #444; background: #003300; padding: 20px; width: 350px; border-radius: 10px; }
+        input { background: #000; color: #0f0; border: 1px solid #0f0; padding: 10px; width: 90%; margin-bottom: 10px; }
+        button { padding: 10px; cursor: pointer; font-weight: bold; margin-right: 5px; }
+        #status { margin-top: 15px; font-size: 0.8em; color: #aaa; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>LCD2USB Web Controller</h2>
-    <p>Control a 1602A screen via WebUSB.</p>
-    
-    <button id="connectBtn">Connect to LCD</button>
-    <hr>
-    
-    <div id="controls" style="display:none;">
-        <input type="text" id="lcdText" placeholder="Type message here..." maxlength="32">
-        <button id="sendBtn">Print</button>
-        <br><br>
-        <button id="clearBtn" style="background: #dc3545;">Clear Screen</button>
-    </div>
-
-    <div id="status">Status: Disconnected</div>
+<div class="lcd-box">
+    <h3>LCD2USB CONTROL</h3>
+    <input type="text" id="line1" placeholder="Line 1 (16 chars)" maxlength="16"><br>
+    <input type="text" id="line2" placeholder="Line 2 (16 chars)" maxlength="16"><br>
+    <button onclick="updateLcd()">SEND TO LCD</button>
+    <button onclick="initLcd()" style="background:#444; color:white;">RESET/ON</button>
+    <div id="status">Status: Waiting for interaction...</div>
 </div>
 
 <script>
     let device;
-    const VID = 0x0403;
-    const PID = 0xc630;
 
-    // LCD2USB Command Constants
+    // LCD2USB Firmware Constants
     const LCD_CMD  = 0;
     const LCD_DATA = 1;
+    const LCD_SET_BACKLIGHT = 2; // Some firmwares use this for brightness
 
-    const connectBtn = document.getElementById('connectBtn');
-    const controls = document.getElementById('controls');
-    const status = document.getElementById('status');
-    const lcdText = document.getElementById('lcdText');
-    const sendBtn = document.getElementById('sendBtn');
-    const clearBtn = document.getElementById('clearBtn');
+    async function initLcd() {
+        try {
+            if (!device) {
+                device = await navigator.usb.requestDevice({ 
+                    filters: [{ vendorId: 0x0403, productId: 0xc630 }] 
+                });
+                await device.open();
+                await device.selectConfiguration(1);
+                await device.claimInterface(0);
+            }
 
-    // Function to send USB control transfers
-    async function sendLcd(type, value) {
-        // LCD2USB uses bmRequestType 0x40 (Vendor, Out, Device)
+            document.getElementById('status').innerText = "Status: Connected. Initializing...";
+
+            // 1. Set Backlight to MAX (Value 255)
+            await device.controlTransferOut({
+                requestType: 'vendor', recipient: 'device',
+                request: LCD_SET_BACKLIGHT, value: 255, index: 0
+            });
+
+            // 2. Clear Display (Command 0x01)
+            await sendCommand(0x01);
+            
+            document.getElementById('status').innerText = "Status: LCD Ready!";
+        } catch (err) {
+            document.getElementById('status').innerText = "Error: " + err;
+        }
+    }
+
+    async function sendCommand(val) {
         await device.controlTransferOut({
-            requestType: 'vendor',
-            recipient: 'device',
-            request: type, 
-            value: value,
-            index: 0
+            requestType: 'vendor', recipient: 'device',
+            request: LCD_CMD, value: val, index: 0
         });
     }
 
-    connectBtn.addEventListener('click', async () => {
-        try {
-            device = await navigator.usb.requestDevice({
-                filters: [{ vendorId: VID, productId: PID }]
-            });
+    async function sendData(val) {
+        await device.controlTransferOut({
+            requestType: 'vendor', recipient: 'device',
+            request: LCD_DATA, value: val, index: 0
+        });
+    }
 
-            await device.open();
-            await device.selectConfiguration(1);
-            await device.claimInterface(0);
-
-            status.innerHTML = "Status: <span class='success'>Connected!</span>";
-            controls.style.display = "block";
-            connectBtn.style.display = "none";
-
-            // Initialize LCD (Clear and Home)
-            await sendLcd(LCD_CMD, 0x01); 
-        } catch (err) {
-            console.error(err);
-            status.innerHTML = "Status: <span class='error'>Error: " + err.message + "</span>";
-        }
-    });
-
-    sendBtn.addEventListener('click', async () => {
-        const text = lcdText.value;
-        // Clear screen first
-        await sendLcd(LCD_CMD, 0x01);
+    async function updateLcd() {
+        if (!device) return alert("Click RESET/ON first!");
         
-        // Send string char by char
-        for (let i = 0; i < text.length; i++) {
-            await sendLcd(LCD_DATA, text.charCodeAt(i));
-        }
-    });
+        const l1 = document.getElementById('line1').value.padEnd(16, ' ');
+        const l2 = document.getElementById('line2').value.padEnd(16, ' ');
 
-    clearBtn.addEventListener('click', async () => {
-        await sendLcd(LCD_CMD, 0x01);
-        lcdText.value = "";
-    });
+        // Clear Screen
+        await sendCommand(0x01);
+        
+        // Write Line 1
+        for (let char of l1) { await sendData(char.charCodeAt(0)); }
+
+        // Jump to Line 2 (Set DDRAM Address to 0x40 -> Command 0x80 | 0x40 = 0xC0)
+        await sendCommand(0xC0);
+
+        // Write Line 2
+        for (let char of l2) { await sendData(char.charCodeAt(0)); }
+        
+        document.getElementById('status').innerText = "Status: Data Sent.";
+    }
 </script>
-
 </body>
 </html>
