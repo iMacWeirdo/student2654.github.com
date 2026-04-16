@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebUSB LCD2USB Controller</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; background: #f4f4f9; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        button { padding: 10px 15px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; }
+        button:disabled { background: #ccc; }
+        input { padding: 10px; width: 70%; border: 1px solid #ddd; border-radius: 4px; }
+        #status { margin-top: 15px; font-weight: bold; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>LCD2USB Web Controller</h2>
+    <p>Control a 1602A screen via WebUSB.</p>
+    
+    <button id="connectBtn">Connect to LCD</button>
+    <hr>
+    
+    <div id="controls" style="display:none;">
+        <input type="text" id="lcdText" placeholder="Type message here..." maxlength="32">
+        <button id="sendBtn">Print</button>
+        <br><br>
+        <button id="clearBtn" style="background: #dc3545;">Clear Screen</button>
+    </div>
+
+    <div id="status">Status: Disconnected</div>
+</div>
+
+<script>
+    let device;
+    const VID = 0x0403;
+    const PID = 0xc630;
+
+    // LCD2USB Command Constants
+    const LCD_CMD  = 0;
+    const LCD_DATA = 1;
+
+    const connectBtn = document.getElementById('connectBtn');
+    const controls = document.getElementById('controls');
+    const status = document.getElementById('status');
+    const lcdText = document.getElementById('lcdText');
+    const sendBtn = document.getElementById('sendBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    // Function to send USB control transfers
+    async function sendLcd(type, value) {
+        // LCD2USB uses bmRequestType 0x40 (Vendor, Out, Device)
+        await device.controlTransferOut({
+            requestType: 'vendor',
+            recipient: 'device',
+            request: type, 
+            value: value,
+            index: 0
+        });
+    }
+
+    connectBtn.addEventListener('click', async () => {
+        try {
+            device = await navigator.usb.requestDevice({
+                filters: [{ vendorId: VID, productId: PID }]
+            });
+
+            await device.open();
+            await device.selectConfiguration(1);
+            await device.claimInterface(0);
+
+            status.innerHTML = "Status: <span class='success'>Connected!</span>";
+            controls.style.display = "block";
+            connectBtn.style.display = "none";
+
+            // Initialize LCD (Clear and Home)
+            await sendLcd(LCD_CMD, 0x01); 
+        } catch (err) {
+            console.error(err);
+            status.innerHTML = "Status: <span class='error'>Error: " + err.message + "</span>";
+        }
+    });
+
+    sendBtn.addEventListener('click', async () => {
+        const text = lcdText.value;
+        // Clear screen first
+        await sendLcd(LCD_CMD, 0x01);
+        
+        // Send string char by char
+        for (let i = 0; i < text.length; i++) {
+            await sendLcd(LCD_DATA, text.charCodeAt(i));
+        }
+    });
+
+    clearBtn.addEventListener('click', async () => {
+        await sendLcd(LCD_CMD, 0x01);
+        lcdText.value = "";
+    });
+</script>
+
+</body>
+</html>
